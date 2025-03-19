@@ -23,7 +23,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 with open('../secrets.yml') as f:
     SECRETS = yaml.safe_load(f)
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -35,7 +34,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -45,10 +43,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'aichat',
     'usermanage',
-    'rest_framework_simplejwt.token_blacklist',
+    'docs'
 ]
 
 MIDDLEWARE = [
@@ -88,7 +87,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'shiguangyinji.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
@@ -102,7 +100,6 @@ DATABASES = {
         'PASSWORD': '',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -122,7 +119,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -133,7 +129,6 @@ TIME_ZONE = 'Asia/Shanghai'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -151,7 +146,7 @@ CORS_ORIGIN_WHITELIST = (
 
 CORS_URLS_REGEX = r"^/api/.*$"
 
-CORS_ALLOW_ALL_ORIGINS =True
+CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_HEADERS = (
     '*',
@@ -177,7 +172,7 @@ AUTH_USER_MODEL = 'usermanage.User'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',  # Django session 认证
-        'rest_framework.authentication.TokenAuthentication',    # DRF Token 认证
+        'rest_framework.authentication.TokenAuthentication',  # DRF Token 认证
         'rest_framework_simplejwt.authentication.JWTAuthentication',  # JWT 认证
     ),
 }

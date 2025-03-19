@@ -21,8 +21,9 @@ from django.views.static import serve
 from django.conf import settings
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/aichat/', include('aichat.urls')),
-    path('api/usermanage/', include('usermanage.urls')),
-    re_path('api/media/(?P<path>.*)', serve, {'document_root': settings.MEDIA_ROOT}),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+                  path('admin/', admin.site.urls),
+                  path('api/aichat/', include('aichat.urls')),
+                  path('api/usermanage/', include('usermanage.urls')),
+                  path('api/docs/', include('docs.urls')),
+                  re_path('api/media/(?P<path>.*)', serve, {'document_root': settings.MEDIA_ROOT}),
+              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
