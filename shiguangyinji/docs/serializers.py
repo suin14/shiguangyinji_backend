@@ -10,6 +10,14 @@ class DocumentSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'content', 'created_at', 'updated_at', 'public', 'owner_id']
 
     def create(self, validated_data):
-        user = self.context['request'].user  # 获取当前请求的用户
-        validated_data['owner_id'] = user  # 自动设置文档的 owner 字段
+        user = self.context['request'].user
+        validated_data['owner_id'] = user
         return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        print("传入的更新数据:", validated_data)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
+
