@@ -81,7 +81,6 @@ class ListDocsByDateView(APIView):
 
         try:
             date = parse_date(date_str)
-            print(date)
             if not date:
                 return Response({"success": False, "error": "Invalid date format"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -90,7 +89,6 @@ class ListDocsByDateView(APIView):
 
             # 如果没有找到文档，返回空数据
             if not docs.exists():
-                print("null")
                 return Response({"success": True, "data": []}, status=status.HTTP_200_OK)
 
             # 序列化文档数据
@@ -100,3 +98,15 @@ class ListDocsByDateView(APIView):
         except Exception as e:
             logger.error(f"Error occurred while retrieving documents: {e}")
             return Response({"success": False, "error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class RetrieveDocumentView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, doc_id):
+        try:
+            document = Document.objects.get(id=doc_id, owner_id=request.user)
+            serializer = DocumentSerializer(document)
+            return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
+        except Document.DoesNotExist:
+            return Response({"msg": "文档不存在或无权限访问"}, status=status.HTTP_404_NOT_FOUND)

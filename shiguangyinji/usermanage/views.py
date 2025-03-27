@@ -124,7 +124,6 @@ class GetUserAvatarView(APIView):
         if not request.user.is_authenticated:
             return Response({"error": "用户未登录"}, status=401)
 
-        # 假设 `avatar` 字段保存的是图片文件名
         avatar_filename = request.user.avatar  # e.g., 'avatars/suin.png'
 
         # 构建返回的图片URL，确保你返回的URL是基于你的项目地址
@@ -132,3 +131,24 @@ class GetUserAvatarView(APIView):
 
         # 返回图片的URL
         return Response({"avatar_url": avatar_url}, status=200)
+
+
+class GetUserByIdView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+            avatar_filename = request.user.avatar
+            avatar_url = f"http://127.0.0.1:8000/media/{avatar_filename}"
+            return Response({
+                "id": user.id,
+                "username": user.username,
+                "nickname": user.nickname,
+                "introduction": user.introduction,
+                "article_count": user.article,
+                "fans_count": user.fans,
+                "avatar_url": avatar_url
+            }, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "用户不存在"}, status=status.HTTP_404_NOT_FOUND)
