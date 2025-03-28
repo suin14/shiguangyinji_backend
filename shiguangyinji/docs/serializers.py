@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Document
+from .models import Document, Like
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -21,3 +21,8 @@ class DocumentSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
+class LikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = '__all__'

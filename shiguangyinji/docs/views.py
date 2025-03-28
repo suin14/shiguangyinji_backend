@@ -3,9 +3,10 @@ from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Document
+from .models import Document, Like
 from .serializers import DocumentSerializer
 from django.utils.dateparse import parse_date
+from django.shortcuts import get_object_or_404
 import logging
 
 logger = logging.getLogger(__name__)
@@ -110,3 +111,40 @@ class RetrieveDocumentView(APIView):
             return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
         except Document.DoesNotExist:
             return Response({"msg": "文档不存在或无权限访问"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class LikeDocView(APIView):
+    """ 用户点赞或取消点赞 """
+
+    def post(self, request, doc_id):
+        user = request.user
+        document = get_object_or_404(Document, id=doc_id)
+
+        # 检查是否已点赞
+        like = Like.objects.filter(user=user, document=document).first()
+        if like:
+            like.delete()  # 取消点赞
+            return Response({"success": True, "msg": "取消点赞"}, status=status.HTTP_200_OK)
+
+        # 添加点赞
+        Like.objects.create(user=user, document=document)
+        return Response({"success": True, "msg": "点赞成功"}, status=status.HTTP_201_CREATED)
+
+
+class GetDocLikeCountView(APIView):
+    """ 查询文章点赞数 """
+
+    def get(self, request, docid):
+        document = get_object_or_404(Document, id=docid)
+        like_count = Like.objects.filter(document=document).count()
+        return Response({"success": True, "like_count": like_count}, status=status.HTTP_200_OK)
+
+
+class CheckUserLikeView(APIView):
+    """ 查询用户是否已对文章点赞 """
+
+    def get(self, request, doc_id):
+        user = request.user
+        document = get_object_or_404(Document, id=doc_id)
+        is_liked = Like.objects.filter(user=user, document=document).exists()
+        return Response({"success": True, "is_liked": is_liked}, status=status.HTTP_200_OK)
