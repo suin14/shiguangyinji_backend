@@ -1,7 +1,8 @@
 from django.urls import path
 from .views import CreateDocumentView, ListUserDocumentsView, DeleteDocumentView, EditDocumentView, \
     DocumentCreatedAtView, ListDocsByDateView, RetrieveDocumentView, \
-    CheckUserLikeView, LikeDocView, GetDocLikeCountView
+    CheckUserLikeView, LikeDocView, GetDocLikeCountView, FavoriteArticleView, CheckUserFavoriteView, \
+    UserFavoriteListView, CommentView
 
 urlpatterns = [
     path('create/', CreateDocumentView.as_view(), name='create-document'),
@@ -14,4 +15,8 @@ urlpatterns = [
     path('<int:doc_id>/like/', LikeDocView.as_view(), name='like_doc'),
     path('<int:docid>/like/count/', GetDocLikeCountView.as_view(), name='get_doc_like_count'),
     path('<int:doc_id>/like/check/', CheckUserLikeView.as_view(), name='check_like'),
+    path('<int:doc_id>/favorite/', FavoriteArticleView.as_view(), name='favorite-article'),
+    path('<int:doc_id>/favorite/check/', CheckUserFavoriteView.as_view(), name='check-favorite'),
+    path('favorites/', UserFavoriteListView.as_view(), name='user-favorites'),
+    path('<int:doc_id>/comments/', CommentView.as_view(), name='article-comments'),
 ]

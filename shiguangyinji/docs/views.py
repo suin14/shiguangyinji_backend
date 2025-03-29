@@ -3,8 +3,8 @@ from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Document, Like
-from .serializers import DocumentSerializer
+from .models import Document, Like, Favorite, Comment
+from .serializers import DocumentSerializer, CommentSerializer
 from django.utils.dateparse import parse_date
 from django.shortcuts import get_object_or_404
 import logging
@@ -148,3 +148,68 @@ class CheckUserLikeView(APIView):
         document = get_object_or_404(Document, id=doc_id)
         is_liked = Like.objects.filter(user=user, document=document).exists()
         return Response({"success": True, "is_liked": is_liked}, status=status.HTTP_200_OK)
+
+
+class FavoriteArticleView(APIView):
+    """ 用户收藏或取消收藏文章 """
+
+    def post(self, request, doc_id):
+        user = request.user
+        document = get_object_or_404(Document, id=doc_id)
+
+        favorite = Favorite.objects.filter(user=user, document=document).first()
+
+        if favorite:
+            favorite.delete()
+            return Response({"success": True, "message": "Favorite removed"}, status=status.HTTP_200_OK)
+
+        Favorite.objects.create(user=user, document=document)
+        return Response({"success": True, "message": "Favorite added"}, status=status.HTTP_201_CREATED)
+
+
+class CheckUserFavoriteView(APIView):
+    """ 检测用户是否已收藏 """
+
+    def get(self, request, doc_id):
+        user = request.user
+        document = get_object_or_404(Document, id=doc_id)
+        is_favorited = Favorite.objects.filter(user=user, document=document).exists()
+        return Response({"success": True, "is_favorited": is_favorited}, status=status.HTTP_200_OK)
+
+
+class UserFavoriteListView(APIView):
+    """ 获取用户收藏的所有文章 """
+
+    def get(self, request):
+        user = request.user
+        favorites = Favorite.objects.filter(user=user).select_related("document")
+        data = [{"id": fav.document.id, "title": fav.document.title} for fav in favorites]
+
+        return Response({"success": True, "favorites": data}, status=status.HTTP_200_OK)
+
+
+class CommentView(APIView):
+    """ 文章评论区 """
+
+    def get(self, request, doc_id):
+        """获取文章的所有评论"""
+        document = get_object_or_404(Document, id=doc_id)
+        comments = Comment.objects.filter(doc=document).order_by('-created_at')
+        comments_data = CommentSerializer(comments, many=True).data
+
+        return Response({"comments": comments_data}, status=status.HTTP_200_OK)
+
+    def post(self, request, doc_id):
+        """用户评论文章"""
+        if not request.user.is_authenticated:
+            return Response({"error": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        document = get_object_or_404(Document, id=doc_id)
+        content = request.data.get("content")
+
+        if not content or content.strip() == "":
+            return Response({"error": "Comment content cannot be empty"}, status=status.HTTP_400_BAD_REQUEST)
+
+        comment = Comment.objects.create(user=request.user, doc=document, content=content)
+
+        return Response(CommentSerializer(comment).data, status=status.HTTP_201_CREATED)

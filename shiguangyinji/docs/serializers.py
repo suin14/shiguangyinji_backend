@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from .models import Document, Like
+from tutorial.quickstart.serializers import UserSerializer
+
+from .models import Document, Like, Comment
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -26,3 +28,17 @@ class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields = '__all__'
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['user_id', 'created_at', 'content']
+        # 如果需要支持空值，确保字段允许空值
+        extra_kwargs = {
+            'user_id': {'required': False, 'allow_null': True},
+            'created_at': {'required': False, 'allow_null': True},
+            'content': {'required': True}
+        }
+
+

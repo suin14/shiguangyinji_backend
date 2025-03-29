@@ -22,3 +22,23 @@ class Like(models.Model):
 
     class Meta:
         unique_together = ('user', 'document')
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    document = models.ForeignKey(Document, on_delete=models.CASCADE)
+    created_at = models.DateField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'document')
+
+
+class Comment(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_at = models.DateField(auto_now_add=True)
+    content = models.TextField()
+    doc = models.ForeignKey(Document, related_name='comments', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Comment by User {self.user_id} on {self.doc.title}"
+
