@@ -2,7 +2,7 @@ from django.urls import path
 from .views import CreateDocumentView, ListUserDocumentsView, DeleteDocumentView, EditDocumentView, \
     DocumentCreatedAtView, ListDocsByDateView, RetrieveDocumentView, \
     CheckUserLikeView, LikeDocView, GetDocLikeCountView, FavoriteArticleView, CheckUserFavoriteView, \
-    UserFavoriteListView, CommentView
+    UserFavoriteListView, CommentView, RandomDocumentsView, SearchDocumentsView
 
 urlpatterns = [
     path('create/', CreateDocumentView.as_view(), name='create-document'),
@@ -19,4 +19,6 @@ urlpatterns = [
     path('<int:doc_id>/favorite/check/', CheckUserFavoriteView.as_view(), name='check-favorite'),
     path('favorites/', UserFavoriteListView.as_view(), name='user-favorites'),
     path('<int:doc_id>/comments/', CommentView.as_view(), name='article-comments'),
+    path('random-docs/', RandomDocumentsView.as_view(), name='random-docs'),
+    path("search/", SearchDocumentsView.as_view(), name="search_documents"),
 ]

@@ -8,6 +8,7 @@ from .serializers import DocumentSerializer, CommentSerializer
 from django.utils.dateparse import parse_date
 from django.shortcuts import get_object_or_404
 import logging
+import random
 
 logger = logging.getLogger(__name__)
 
@@ -213,3 +214,38 @@ class CommentView(APIView):
         comment = Comment.objects.create(user=request.user, doc=document, content=content)
 
         return Response(CommentSerializer(comment).data, status=status.HTTP_201_CREATED)
+
+
+class RandomDocumentsView(APIView):
+    """ 随机抽取最多 10 个文档 """
+
+    def get(self, request):
+        count = min(int(request.query_params.get("count", 10)), 10)  # 获取参数，限制最大 10 个
+        all_docs = list(Document.objects.all())
+
+        if not all_docs:
+            return Response({"success": True, "data": []}, status=status.HTTP_200_OK)
+
+        selected_docs = random.sample(all_docs, min(len(all_docs), count))
+        serializer = DocumentSerializer(selected_docs, many=True)
+
+        return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
+
+
+class SearchDocumentsView(APIView):
+    """ 文章标题模糊搜索 """
+
+    def get(self, request):
+        query = request.query_params.get("q", "").strip()
+        if not query:
+            return Response({"success": False, "message": "缺少搜索关键字"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 使用 icontains 进行模糊搜索
+        matched_docs = Document.objects.filter(title__icontains=query)
+
+        if not matched_docs:
+            return Response({"success": True, "data": []}, status=status.HTTP_200_OK)
+
+        serializer = DocumentSerializer(matched_docs, many=True)
+
+        return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
