@@ -139,7 +139,7 @@ class GetUserByIdView(APIView):
     def get(self, request, user_id):
         try:
             user = User.objects.get(id=user_id)
-            avatar_filename = request.user.avatar
+            avatar_filename = user.avatar
             avatar_url = f"http://127.0.0.1:8000/media/{avatar_filename}"
             return Response({
                 "id": user.id,
@@ -152,3 +152,16 @@ class GetUserByIdView(APIView):
             }, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({"error": "用户不存在"}, status=status.HTTP_404_NOT_FOUND)
+        
+        
+class CheckIsAdminView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return Response({"error": "用户未登录"}, status=401)
+
+        is_admin = request.user.is_staff == 1 or request.user.is_staff is True
+
+        return Response({"is_admin": is_admin}, status=200)

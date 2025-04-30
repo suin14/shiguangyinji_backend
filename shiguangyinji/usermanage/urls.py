@@ -1,7 +1,7 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import RegisterView, CheckUsernameExistView, CheckPhoneExistView, LoginView, CheckLoginStatusView, \
-    LogoutView, GetUserProfileView, EditUserProfileView, GetUserAvatarView, GetUserByIdView
+    LogoutView, GetUserProfileView, EditUserProfileView, GetUserAvatarView, GetUserByIdView, CheckIsAdminView
 
 urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -16,4 +16,5 @@ urlpatterns = [
     path('edit-profile/', EditUserProfileView.as_view(), name='edit-profile'),
     path('get-avatar/', GetUserAvatarView.as_view(), name='get_user_avatar'),
     path('user/<int:user_id>/', GetUserByIdView.as_view(), name='get_user_by_id'),
+    path('check-is-admin/', CheckIsAdminView.as_view(), name='check_is_admin'),
 ]

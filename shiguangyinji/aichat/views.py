@@ -11,7 +11,7 @@ class AIChat(View):
         q = request.POST.get('question')
         user = request.POST.get('user')
         cid = request.POST.get('conversation_id', '')
-        # print(f"Received question: {q}, user: {user}, conversation_id: {cid}")
+        print(f"Received question: {q}, user: {user}, conversation_id: {cid}")
         isOk, ret_conversation_id, ret_content, ret_status_code, ret_err_text = send(q, user, cid)
         if isOk:
             ChatInfo.objects.create(user=user, answer=ret_content, question=q)

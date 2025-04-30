@@ -21,7 +21,10 @@ class CreateDocumentView(APIView):
         serializer = DocumentSerializer(data=data, context={'request': request})
 
         if serializer.is_valid():
-            serializer.save()  # 创建文档并保存
+            serializer.save()
+            user = request.user
+            user.article += 1
+            user.save()
             return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
 
         return Response({"msg": "创建文档失败", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
@@ -43,6 +46,9 @@ class DeleteDocumentView(APIView):
         try:
             document = Document.objects.get(id=doc_id, owner_id=request.user)
             document.delete()
+            user = request.user
+            user.article -= 1
+            user.save()
             return Response({"success": True, "msg": "文档删除成功"}, status=status.HTTP_200_OK)
         except Document.DoesNotExist:
             return Response({"msg": "文档不存在或无权限删除"}, status=status.HTTP_404_NOT_FOUND)
@@ -107,7 +113,7 @@ class RetrieveDocumentView(APIView):
 
     def get(self, request, doc_id):
         try:
-            document = Document.objects.get(id=doc_id, owner_id=request.user)
+            document = Document.objects.get(id=doc_id)
             serializer = DocumentSerializer(document)
             return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
         except Document.DoesNotExist:
